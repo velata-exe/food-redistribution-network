@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Donate</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="app-body">
+  <div class="app-shell">
+
+    <header class="app-topbar">
+      <div class="app-title">
+        <div class="app-title-main">Donate Food</div>
+      </div>
+      <div class="app-actions">
+        <a class="topbtn" href="/dashboard">← Dashboard</a>
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash">
+          {% for category, msg in messages %}
+            <div class="flash-{{ category }}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <main class="dash-grid dash-grid-single">
+      <section class="panel">
+        <div class="panel-subtitle">DONATION DETAILS</div>
+
+        <form method="POST" autocomplete="on" class="form-clean">
+          <input type="hidden" name="donation_token" value="{{ donation_token }}">
+          <input type="hidden" name="item_count" value="{{ item_count|default(1) }}">
+
+          <div class="block">
+            <div class="block-head">
+              <div class="block-title">Location</div>
+              <a href="/edit-profile" class="mini-link">Edit location</a>
+            </div>
+
+            <div class="form-row">
+              <label class="form-label" for="pincode">Pincode</label>
+              <input
+                id="pincode"
+                class="form-input"
+                name="pincode"
+                value="{{ form_data.get('pincode', default_pincode) if form_data else default_pincode }}"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                maxlength="6"
+                minlength="6"
+                required
+                placeholder="Enter 6-digit pincode"
+              >
+              <div class="hint">Enter a valid 6-digit pincode.</div>
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="block-head">
+              <div class="block-title">Food Items</div>
+              <button class="topbtn" type="submit" name="add_item" value="1">+ Add Item</button>
+            </div>
+
+            {% for i in range(1, (item_count|default(1)) + 1) %}
+            <div class="info-box" style="margin-top: 14px;">
+              <div class="panel-subtitle" style="margin:0 0 10px 0;">ITEM {{ i }}</div>
+
+              <div class="form-row">
+                <label class="form-label">Food Name</label>
+                <input class="form-input" name="food_name_{{i}}" value="{{ form_data.get('food_name_' ~ i, '') if form_data else '' }}" placeholder="Idli / Rice / Curry">
+              </div>
+
+              <div class="form-row">
+                <label class="form-label">Food Category</label>
+                <select class="form-input" name="food_category_{{i}}">
+                  <option value="">Select category</option>
+                  <option value="Veg" {% if form_data and form_data.get('food_category_' ~ i) == 'Veg' %}selected{% endif %}>Veg</option>
+                  <option value="NonVeg" {% if form_data and form_data.get('food_category_' ~ i) == 'NonVeg' %}selected{% endif %}>Non-Veg</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <label class="form-label">Quantity</label>
+                <input class="form-input" type="number" name="quantity_{{i}}" min="1" step="1" value="{{ form_data.get('quantity_' ~ i, '') if form_data else '' }}" placeholder="e.g., 40">
+              </div>
+
+              <div class="form-row">
+                <label class="form-label">Meal Type</label>
+                <select class="form-input" name="meal_type_{{i}}">
+                  <option value="Any" {% if not form_data or form_data.get('meal_type_' ~ i, 'Any') == 'Any' %}selected{% endif %}>Any</option>
+                  <option value="Breakfast" {% if form_data and form_data.get('meal_type_' ~ i) == 'Breakfast' %}selected{% endif %}>Breakfast</option>
+                  <option value="Lunch" {% if form_data and form_data.get('meal_type_' ~ i) == 'Lunch' %}selected{% endif %}>Lunch</option>
+                  <option value="Dinner" {% if form_data and form_data.get('meal_type_' ~ i) == 'Dinner' %}selected{% endif %}>Dinner</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <label class="form-label">Cooked Time</label>
+                <input class="form-input" type="datetime-local" name="cooked_time_{{i}}" value="{{ form_data.get('cooked_time_' ~ i, '') if form_data else '' }}">
+              </div>
+
+              <div class="form-row">
+                <label class="form-label">Safe Until</label>
+                <input class="form-input" type="datetime-local" name="safe_until_{{i}}" value="{{ form_data.get('safe_until_' ~ i, '') if form_data else '' }}">
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <button class="savebtn" type="submit">Submit Donation</button>
+        </form>
+      </section>
+    </main>
+
+  </div>
+</body>
+</html>

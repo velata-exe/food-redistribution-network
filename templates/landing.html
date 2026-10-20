@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Food Redistribution</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="landing-body">
+
+  <div class="landing-bg"></div>
+
+  <main class="landing-card">
+    <div class="brand">
+      <div class="brand-badge">FRIS</div>
+      <div>
+        <h1 class="brand-title">Sustainable Food Distribution Network</h1>
+        <p class="brand-subtitle">Connect donors with nearby shelters before food expires.</p>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash">
+        {% for category, msg in messages %}
+          <div class="flash-{{ category }}">{{ msg }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Centered buttons -->
+    <section class="cta">
+      <a class="pill pill-primary" href="/login">Login</a>
+      <a class="pill pill-secondary" href="/signup">Signup</a>
+    </section>
+  </main>
+
+</body>
+</html>

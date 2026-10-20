@@ -1,0 +1,373 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="app-body">
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <div class="app-title">
+      <div class="app-title-main">Food Redistribution Dashboard</div>
+    </div>
+
+    <div class="app-actions">
+      <details class="dropdown">
+        <summary class="topbtn">
+          👤 <span style="font-weight:900;">Account</span> ▾
+        </summary>
+
+        <div class="dropdown-menu">
+          <a href="/edit-profile" class="dropdown-item">Edit Profile</a>
+          <a href="/logout" class="dropdown-item logout-item">Logout</a>
+        </div>
+      </details>
+    </div>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash">
+    {% for category, msg in messages %}
+    <div class="flash-{{ category }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <main class="dash-grid">
+
+    <!-- LEFT PANEL -->
+    <section class="panel">
+
+      <h2 class="panel-title">Account Summary</h2>
+      <div class="panel-subtitle">ACCOUNT PROFILE</div>
+
+      <div class="info-box">
+        <div class="info-row">
+          <span class="info-label">Name:</span>
+          <span class="info-value">{{ display_name }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Role:</span>
+          <span class="info-value">{{ role }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">User Type:</span>
+          <span class="info-value">{{ kind|capitalize }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Phone:</span>
+          <span class="info-value">{{ account_phone }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Pincode:</span>
+          <span class="info-value">{{ account_pincode }}</span>
+        </div>
+      </div>
+
+      <div class="panel-subtitle" style="margin-top:20px;">QUICK STATS</div>
+
+      <div class="info-box">
+
+        {% if role == "Donor" %}
+
+        <div class="info-row">
+          <span class="info-label">Total Donations:</span>
+          <span class="info-value">{{ stats_total_donations }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Active Donations:</span>
+          <span class="info-value">{{ stats_active_donations }}</span>
+        </div>
+
+        {% endif %}
+
+        {% if role == "Receiver" %}
+
+        <div class="info-row">
+          <span class="info-label">Total Requests:</span>
+          <span class="info-value">{{ stats_total_requests }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Active Requests:</span>
+          <span class="info-value">{{ stats_active_requests }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Fulfilled Requests:</span>
+          <span class="info-value">{{ stats_fulfilled_requests }}</span>
+        </div>
+
+        {% endif %}
+
+      </div>
+
+    </section>
+
+
+    <!-- RIGHT PANEL -->
+    <section class="panel">
+
+      {% if role == "Receiver" %}
+
+      <h2 class="panel-title">Your Requests</h2>
+      <div class="panel-subtitle">CURRENT, MATCHED & PAST REQUESTS</div>
+
+      <!-- CURRENT REQUESTS -->
+      <div class="block">
+
+        <div class="block-head">
+          <div class="block-title">Current Requests</div>
+
+          <div style="display:flex; gap:10px;">
+            <a class="topbtn" href="/receiver-matches">View Matches</a>
+            <a class="greenbtn" href="/request">+ New Request</a>
+          </div>
+        </div>
+
+        {% if current_requests and current_requests|length > 0 %}
+
+        <div class="scroll-box">
+          <div class="table-wrap">
+
+            <table class="table">
+
+              <thead>
+              <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th class="right">Remaining</th>
+                <th>Urgency</th>
+              </tr>
+              </thead>
+
+              <tbody>
+
+              {% for r in current_requests %}
+
+              <tr>
+                <td><b>#{{ r.request_id }}</b></td>
+                <td>{{ r.required_date }}</td>
+
+                <td>
+                  <span class="pill status-{{ r.status|lower }}">
+                    {{ r.status }}
+                  </span>
+                </td>
+
+                <td class="right">
+                  <b>{{ r.remaining_required }}</b>
+                </td>
+
+                <td>
+                  <span class="pill urg-{{ r.urgency_level|lower }}">
+                    {{ r.urgency_level }}
+                  </span>
+                </td>
+              </tr>
+
+              {% endfor %}
+
+              </tbody>
+
+            </table>
+
+          </div>
+        </div>
+
+        {% else %}
+
+        <div class="empty-card">No current requests yet.</div>
+
+        {% endif %}
+
+      </div>
+
+
+      <!-- PAST REQUESTS -->
+      <div class="block">
+
+        <div class="block-head">
+          <div class="block-title">Past Requests</div>
+        </div>
+
+        {% if past_requests and past_requests|length > 0 %}
+
+        <div class="scroll-box">
+          <div class="table-wrap">
+
+            <table class="table">
+
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Received Qty</th>
+                  <th>Donor Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in past_requests %}
+                <tr>
+                  <td>#{{ r.request_id }}</td>
+                  <td>{{ r.required_date }}</td>
+                  <td>{{ r.status }}</td>
+                  <td>{{ r.received_quantity }}</td>
+                  <td>{{ r.donor_name }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {% else %}
+
+        <div class="empty-card">No past requests yet.</div>
+
+        {% endif %}
+
+      </div>
+
+      {% endif %}
+
+
+
+      {% if role == "Donor" %}
+
+      <h2 class="panel-title">Your Donations</h2>
+      <div class="panel-subtitle">CURRENT & PAST DONATIONS</div>
+
+
+      <!-- CURRENT DONATIONS -->
+      <div class="block">
+
+        <div class="block-head">
+          <div class="block-title">Current Donations</div>
+
+          <div style="display:flex; gap:10px;">
+            <a class="topbtn" href="/donor-allocations">View Approved Allocations</a>
+            <a class="greenbtn" href="/donate">+ New Donation</a>
+          </div>
+
+        </div>
+
+        {% if current_donations and current_donations|length > 0 %}
+
+        <div class="scroll-box">
+          <div class="table-wrap">
+
+            <table class="table">
+
+              <thead>
+              <tr>
+                <th>ID</th>
+                <th>Status</th>
+                <th class="right">Remaining</th>
+                <th>Created</th>
+              </tr>
+              </thead>
+
+              <tbody>
+
+              {% for d in current_donations %}
+
+              <tr>
+                <td><b>#{{ d.donation_id }}</b></td>
+
+                <td>
+                  <span class="pill status-{{ d.status|lower }}">
+                    {{ d.status }}
+                  </span>
+                </td>
+
+                <td class="right">
+                  <b>{{ d.remaining_quantity }}</b>
+                </td>
+
+                <td>{{ d.created_at }}</td>
+
+              </tr>
+
+              {% endfor %}
+
+              </tbody>
+
+            </table>
+
+          </div>
+        </div>
+
+        {% else %}
+
+        <div class="empty-card">No current donations yet.</div>
+
+        {% endif %}
+
+      </div>
+
+
+      <!-- PAST DONATIONS -->
+      <div class="block">
+
+        <div class="block-head">
+          <div class="block-title">Past Donations</div>
+        </div>
+
+        {% if past_donations and past_donations|length > 0 %}
+
+        <div class="scroll-box">
+          <div class="table-wrap">
+
+            <table class="table">
+
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Receiver Name</th>
+                  <th>Allocated Qty</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for d in past_donations %}
+                <tr>
+                  <td>#{{ d.donation_id }}</td>
+                  <td>{{ d.created_at }}</td>
+                  <td>{{ d.status }}</td>
+                  <td>{{ d.receiver_name }}</td>
+                  <td>{{ d.allocated_quantity }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+
+            </table>
+
+          </div>
+        </div>
+
+        {% else %}
+        <div class="empty-card">No past donations yet.</div>
+        {% endif %}
+
+      </div>
+      {% endif %}
+
+    </section>
+  </main>
+</div>
+</body>
+</html>

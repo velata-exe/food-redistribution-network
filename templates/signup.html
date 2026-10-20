@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Signup</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body class="auth-body">
+  <div class="auth-bg"></div>
+  <div class="auth-card">
+    <h1 class="auth-title">Create Account</h1>
+    <p class="auth-subtitle">Choose role + account type. One-time users don’t need a password.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash">
+          {% for category, msg in messages %}
+            <div class="flash-{{ category }}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" class="auth-form" autocomplete="on">
+
+      <label class="auth-label">Name</label>
+      <input class="auth-input" name="name" placeholder="Enter your name" required autocomplete="name">
+
+      <label class="auth-label">Phone</label>
+      <input class="auth-input" name="phone" placeholder="Enter phone number" required autocomplete="tel">
+
+      <label class="auth-label">Pincode</label>
+      <input class="auth-input" name="pincode" placeholder="Enter pincode" required inputmode="numeric">
+
+      <label class="auth-label">Role</label>
+      <select class="auth-select" name="role" id="role" required>
+        <option value="Donor">Donor</option>
+        <option value="Receiver">Receiver</option>
+      </select>
+
+      <label class="auth-label">Account Type</label>
+      <select class="auth-select" name="account_type" id="account_type" required>
+        <option value="Permanent">Permanent</option>
+        <option value="OneTime">One-time</option>
+      </select>
+
+      <!-- Permanent only -->
+      <div id="permanent_fields">
+        <label class="auth-label">Username</label>
+        <input class="auth-input" name="username" placeholder="Choose a username" autocomplete="username">
+
+        <label class="auth-label">Password</label>
+        <input class="auth-input" name="password" type="password" placeholder="Create a password" autocomplete="new-password">
+      </div>
+
+      <!-- Donor only -->
+      <div id="donor_fields">
+        <label class="auth-label">Donor Category</label>
+        <select class="auth-select" name="donor_category">
+          <option>Individual</option>
+          <option>Hotel</option>
+          <option>Hostel</option>
+          <option>Event</option>
+        </select>
+      </div>
+
+      <!-- Receiver only -->
+      <div id="receiver_fields" style="display:none;">
+        <label class="auth-label">Receiver Category</label>
+        <select class="auth-select" name="receiver_category">
+          <option>NGO</option>
+          <option>ChildrenHome</option>
+          <option>OldAgeHome</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <button class="auth-button" type="submit">Create Account</button>
+    </form>
+
+    <div class="auth-footer">
+      <a class="auth-link" href="/">← Back</a>
+      <span class="auth-sep">•</span>
+      <a class="auth-link" href="/login">Already have an account?</a>
+    </div>
+  </div>
+
+  <script>
+    const roleEl = document.getElementById("role");
+    const accEl  = document.getElementById("account_type");
+    const perm   = document.getElementById("permanent_fields");
+    const donor  = document.getElementById("donor_fields");
+    const recv   = document.getElementById("receiver_fields");
+
+    function refresh() {
+
+      // Toggle role sections
+      recv.style.display  = (roleEl.value === "Receiver") ? "block" : "none";
+      donor.style.display = (roleEl.value === "Donor") ? "block" : "none";
+
+      // IMPORTANT: Receivers cannot be one-time
+      if (roleEl.value === "Receiver") {
+        accEl.value = "Permanent";
+
+        // hide one-time option
+        accEl.querySelector('option[value="OneTime"]').style.display = "none";
+      } else {
+        // show one-time option for donors
+        accEl.querySelector('option[value="OneTime"]').style.display = "block";
+      }
+
+      // Toggle permanent fields
+      perm.style.display = (accEl.value === "Permanent") ? "block" : "none";
+
+      // Clear username/password if switching to one-time
+      if (accEl.value !== "Permanent") {
+        const u = perm.querySelector('input[name="username"]');
+        const p = perm.querySelector('input[name="password"]');
+        if (u) u.value = "";
+        if (p) p.value = "";
+      }
+    }
+
+    roleEl.addEventListener("change", refresh);
+    accEl.addEventListener("change", refresh);
+
+    refresh();
+  </script>
+</body>
+</html>

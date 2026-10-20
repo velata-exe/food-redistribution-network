@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Request</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="app-body">
+  <div class="app-shell">
+
+    <header class="app-topbar">
+      <div class="app-title">
+        <div class="app-title-main">Create Request</div>
+      </div>
+      <div class="app-actions">
+        <a class="topbtn" href="/dashboard">← Dashboard</a>
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash">
+          {% for category, msg in messages %}
+            <div class="flash-{{ category }}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <main class="dash-grid dash-grid-single">
+      <section class="panel">
+        <div class="panel-subtitle">REQUEST DETAILS</div>
+
+        <form method="POST" class="form-clean">
+
+          <div class="form-row">
+            <label class="form-label">Your Pincode</label>
+            <input class="form-input" type="text" value="{{ default_pincode }}" readonly>
+            <div class="hint">
+              Location is taken from profile.
+              <a class="mini-link" href="/edit-profile">Edit Profile</a>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">Required Date</label>
+            <input class="form-input" type="date" name="required_date" required>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">Meal Preference</label>
+            <select class="form-input" name="meal_preference">
+              <option value="Any">Any</option>
+              <option value="Breakfast">Breakfast</option>
+              <option value="Lunch">Lunch</option>
+              <option value="Dinner">Dinner</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">Quantity Needed</label>
+            <input class="form-input" type="number" name="quantity" min="1" required>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">Urgency</label>
+            <select class="form-input" name="urgency_level">
+              <option value="High">High</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+
+          <button class="savebtn" type="submit">Submit Request</button>
+        </form>
+      </section>
+    </main>
+
+  </div>
+</body>
+</html>

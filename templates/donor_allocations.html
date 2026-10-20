@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Approved Allocations</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="app-body">
+  <div class="app-shell">
+
+    <header class="app-topbar">
+      <div class="app-title">
+        <div class="app-title-main">Receiver Approved Allocations</div>
+      </div>
+      <div class="app-actions">
+        <a class="topbtn" href="/dashboard">← Dashboard</a>
+      </div>
+    </header>
+
+    <main class="dash-grid" style="grid-template-columns:1fr;">
+      <section class="panel">
+        {% if rows %}
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Donation ID</th>
+                  <th>Item</th>
+                  <th>Receiver Name</th>
+                  <th>Receiver Category</th>
+                  <th class="right">Allocated Qty</th>
+                  <th>Status</th>
+                  <th class="right">Remaining Qty</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in rows %}
+                <tr>
+                  <td><b>#{{ row.donation_id }}</b></td>
+                  <td>{{ row.food_name }}</td>
+                  <td>{{ row.receiver_name }}</td>
+                  <td>{{ row.receiver_category }}</td>
+                  <td class="right"><b>{{ row.allocated_quantity }}</b></td>
+                  <td><span class="pill status-{{ row.allocation_status|lower }}">{{ row.allocation_status }}</span></td>
+                  <td class="right">{{ row.remaining_quantity if row.remaining_quantity > 0 else 0 }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-card">No receiver-approved allocations yet.</div>
+        {% endif %}
+      </section>
+    </main>
+
+  </div>
+</body>
+</html>

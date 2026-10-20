@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Receiver Matches</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="app-body">
+<div class="app-shell">
+
+  <header class="app-topbar">
+    <div class="app-title">
+      <div class="app-title-main">Receiver Matches</div>
+    </div>
+
+    <div class="app-actions">
+      <a class="topbtn" href="/dashboard">← Dashboard</a>
+    </div>
+  </header>
+
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash">
+    {% for category, msg in messages %}
+      <div class="flash-{{ category }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+
+  <main class="dash-grid" style="grid-template-columns:1fr;">
+
+    <section class="panel">
+
+      <h2 class="panel-title">Matched Donations</h2>
+      <div class="panel-subtitle">SUITABLE MATCHES FOR ACTIVE REQUESTS</div>
+
+      {% if rows and rows|length > 0 %}
+
+      <div class="scroll-box">
+      <div class="table-wrap">
+
+      <table class="table">
+
+        <thead>
+        <tr>
+          <th>Request ID</th>
+          <th>Food Name</th>
+          <th>Donor</th>
+          <th>Phone</th>
+          <th class="right">Available Qty</th>
+          <th class="right">Distance (km)</th>
+          <th>Safe Until</th>
+          <th class="right">Accept Qty</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        {% for row in rows %}
+
+        <tr>
+
+          <td><b>#{{ row.request_id }}</b></td>
+
+          <td>{{ row.food_name }}</td>
+
+          <td>{{ row.donor_name }}</td>
+
+          <td>
+            📞 {{ row.donor_phone }}
+          </td>
+
+          <td class="right">
+            {{ row.available }}
+          </td>
+
+          <td class="right">
+            {{ row.distance }}
+          </td>
+
+          <td>
+            {{ row.safe_until }}
+          </td>
+
+          <td>
+
+            <form method="POST"
+                  action="{{ url_for('accept_match') }}"
+                  style="display:flex; gap:8px; align-items:center; margin:0;">
+
+              <input type="hidden" name="request_id" value="{{ row.request_id }}">
+              <input type="hidden" name="donation_id" value="{{ row.donation_id }}">
+              <input type="hidden" name="item_no" value="{{ row.item_no }}">
+
+              <input
+                class="form-input"
+                type="number"
+                name="qty"
+                value="1"
+                min="1"
+                max="{{ row.suggested_qty }}"
+                step="1"
+                aria-label="Quantity to accept for request {{ row.request_id }}; maximum {{ row.suggested_qty }}"
+                title="Choose a whole quantity from 1 to {{ row.suggested_qty }}"
+                style="width:90px;"
+                required>
+
+          </td>
+
+          <td>
+              <button class="greenbtn" type="submit">Accept</button>
+            </form>
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+      </table>
+
+      </div>
+      </div>
+
+      {% else %}
+
+      <div class="empty-card">
+        No suitable matches found.
+      </div>
+
+      {% endif %}
+
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>
