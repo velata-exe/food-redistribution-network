@@ -3,7 +3,7 @@
 .env.*
 !.env.example
 
-# Python virtual environment
+# Python virtual environments
 venv/
 .venv/
 env/
@@ -28,6 +28,5 @@ Thumbs.db
 # Logs
 *.log
 
-# Local database exports and files containing private data
+# Local database exports and private files
 DESCRIBE tables.txt
-*.sql
